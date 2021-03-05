@@ -1,0 +1,129 @@
+﻿<Window x:Class="Telecomms.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Telecomms"
+        mc:Ignorable="d"
+        Title="Chat App" Height="850" Width="900"
+        WindowStartupLocation="CenterScreen"
+        >
+    <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Height="63" Margin="3 3 3 3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="2"
+                           x:Name="username_text_area" 
+                           Text="Username"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           FontSize="25"
+                           Margin="10"
+                           />
+                <Border Width="80" Height="50"
+                        Grid.Column="2"
+                        CornerRadius="8"
+                        Background="#FF4A92FF"
+                        HorizontalAlignment="Right" 
+                        Margin="5"
+                        >
+                    <Button Background="Transparent"
+                            BorderThickness="0" Click="logoutOnClick"
+                            >
+                        <TextBlock Text="Logout"
+                                   Foreground="White"
+                                   FontSize="18"
+                                   />
+                    </Button>
+                </Border>
+                <Border Width="100" Height="50"
+                        Grid.Column="0"
+                        CornerRadius="8"
+                        Background="#FF4A92FF"
+                        HorizontalAlignment="Left" 
+                        Margin="5"
+                        >
+                    <Button Background="Transparent"
+                            BorderThickness="0" Click="addOnClick"
+                            >
+                        <TextBlock Text="Add User"
+                                   Foreground="White"
+                                   FontSize="18"
+                                   />
+                    </Button>
+                </Border>
+            </Grid>
+            <Grid Grid.Row="1" Margin="0,0,0.333,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                <StackPanel x:Name="usersStack" 
+                        Grid.Column="0"
+                        Margin="5"
+                        >
+                </StackPanel>
+            </ScrollViewer>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="60"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                        <TextBlock x:Name="chatTextArea" 
+                           Height="600"
+                           Margin="10"
+                           FontSize="18"
+                           />
+                    </ScrollViewer>
+                    
+                </StackPanel>
+                
+                <Grid Grid.Row="1" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            CornerRadius="8"
+                            Background="#fcfcfc"
+                            Margin="5"
+                            >
+                        <TextBox x:Name="textInput" Text="Type"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="5"
+                                 VerticalAlignment="Center"
+                                 FontSize="20"
+                                 />
+                    </Border>
+                    <Border Grid.Column="1"
+                            Margin="3"
+                            Background="#FF4A92FF"
+                            CornerRadius="8"
+                            >
+                        <Button Background="Transparent"
+                                BorderThickness="0" Click="sendOnClick"
+                                >
+                            <TextBlock Text="Send"
+                                       FontSize="18"
+                                       Foreground="White"
+                                       />
+                        </Button>
+                    </Border>
+                </Grid>
+                
+            </Grid>
+        </Grid>
+        </Grid>
+        
+</Window>

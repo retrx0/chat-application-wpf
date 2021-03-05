@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telecomms", "Telecomms\Telecomms.csproj", "{BFB8BDD9-3D1E-4D36-80DE-646A76B278A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{231761FF-EEE2-4FFF-A8C7-47948CE2FE46}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFB8BDD9-3D1E-4D36-80DE-646A76B278A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB8BDD9-3D1E-4D36-80DE-646A76B278A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB8BDD9-3D1E-4D36-80DE-646A76B278A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB8BDD9-3D1E-4D36-80DE-646A76B278A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F4AA25A2-BC06-4E0F-AD33-84584D2A1FEE}
+	EndGlobalSection
+EndGlobal
