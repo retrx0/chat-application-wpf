@@ -31,7 +31,6 @@ namespace Telecomms
             string password = password_input.Password;
             MainWindow main = new MainWindow(username, password);
             main.Show();
-            Console.WriteLine("hello");
             this.Close();
         }
     }
