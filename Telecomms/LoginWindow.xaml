@@ -43,9 +43,9 @@
                        Margin="80 0 0 0"
                        />
             <Border Margin="80 10 80 10" 
-                    BorderThickness="2"
+                    BorderThickness="1"
                     CornerRadius="8"
-                    BorderBrush="#999999"
+                    BorderBrush="#B5D2FD"
                     >
                 <TextBox x:Name="username_input"
                          Margin="2 2 2 2 "
@@ -62,9 +62,9 @@
                        Margin="80 0 0 0"
                        />
             <Border Margin="80 10 80 10" 
-                    BorderThickness="2"
+                    BorderThickness="1"
                     CornerRadius="8"
-                    BorderBrush="#999999">
+                    BorderBrush="#B5D2FD">
                 <PasswordBox x:Name="password_input"
                              Margin="2 2 2 2 "
                              Height="30"
@@ -76,39 +76,18 @@
                          />
             </Border>
 
-            <Border Width="110" Height="60"
-                    CornerRadius="8"
-                    Background="#FF4A92FF"
-                    Margin="3 3 3 3"
+            <Button x:Name="login_btn"
+                    Width="100" 
+                    Height="50" 
+                    Background="Transparent" 
+                    BorderBrush="#00000000" 
+                    Foreground="White" 
+                    Click="loginButtonClicked"
+                    Style="{StaticResource CustomButton}"
+                    Content="Login"
                     >
-                <Button x:Name="login_btn"
-                        Width="100" 
-                        Height="50" 
-                        Background="Transparent" 
-                        BorderBrush="#00000000" 
-                        Foreground="White" 
-                        Click="loginButtonClicked"
-                       
-                    >
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background">
-                                        <Setter.Value>
-                                            <SolidColorBrush Color="#FF4A92FF" />
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <TextBlock Text="Login" 
-                           FontSize="25" 
-                           FontWeight="Medium" />
-                </Button>
-            </Border>
-            
+            </Button>
+
         </StackPanel>
     </Grid>
 </Window>

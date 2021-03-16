@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:Telecomms"
              StartupUri="LoginWindow.xaml">
     <Application.Resources>
-
+        <ResourceDictionary Source="./Styles/Button-Style.xaml" />
     </Application.Resources>
 </Application>
