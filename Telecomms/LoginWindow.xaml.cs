@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Telecomms.src.models;
 
 namespace Telecomms
 {
@@ -25,6 +26,7 @@ namespace Telecomms
             InitializeComponent();
         }
         
+
         private void loginButtonClicked(object sender, RoutedEventArgs e)
         {
             string username = username_input.Text;

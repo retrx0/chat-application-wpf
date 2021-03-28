@@ -51,7 +51,7 @@
                         Grid.Column="0"
                         HorizontalAlignment="Left"
                         >
-                    <TextBlock Text="Add User"
+                    <TextBlock Text="Join Group"
                                 Foreground="White"
                                 FontSize="18"
                                 />
@@ -60,12 +60,12 @@
                         Grid.Column="0"
                         Style="{StaticResource CustomButton}"
                         Height="40"
-                        Width="100"
+                        Width="120"
                         HorizontalAlignment="Right"
                         BorderThickness="0" 
-                        Click="addGroupOnClick"
+                        Click="addGroupOnClick" Margin="0,11,10.333,12"
                         >
-                    <TextBlock Text="Add Group"
+                    <TextBlock Text="Create Group"
                                 Foreground="White"
                                 FontSize="18"
                                 />

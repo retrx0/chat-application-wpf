@@ -11,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Telecomms.src.models;
+using System.Net.Sockets;
 
 namespace Telecomms
 {
@@ -21,6 +23,18 @@ namespace Telecomms
     {
         public string username;
         public string password;
+        Client client;
+        ClientMessage clientMessage;
+        private delegate void UpdateDelegate(string pMessage);
+
+        public MainWindow(string msg)
+        {
+        }
+
+        public  MainWindow getWindow
+        {
+            get{ return this; }
+        }
 
         public MainWindow()
         {
@@ -51,6 +65,8 @@ namespace Telecomms
             newUser.Background = new System.Windows.Media.SolidColorBrush() { Color = Color.FromRgb(250, 250, 250) };
             newUser.Content = title;
 
+            newUser.Click += new RoutedEventHandler((s,e) => { chatStackPanel.Children.Clear(); });
+
             Grid grid = new Grid();
             ColumnDefinitionCollection colums = grid.ColumnDefinitions;
             ColumnDefinition col1 = new ColumnDefinition();
@@ -72,29 +88,52 @@ namespace Telecomms
             usersStack.Children.Add(userBorder);
         }
 
+        private void setUpClient()
+        {
+            client = new Client();
+            client.OnLoginPressed();
+        }
+
         private void addOnClick(object sender, RoutedEventArgs e)
         {
             AddDialog dialog = new AddDialog("Type Username");
             dialog.ShowDialog();
             initUserView(dialog.result);
+            setUpClient();
         }
 
-        private void sendOnClick(object sender, RoutedEventArgs e)
+        public void wrapMessage(string msg)
         {
             TextBlock message = new TextBlock();
             message.Margin = new System.Windows.Thickness(5);
             message.Padding = new System.Windows.Thickness(0);
             message.FontSize = 20;
             message.TextWrapping = TextWrapping.Wrap;
-            message.Text = username + ": " + messageTextInput.Text + Environment.NewLine;
+
+            message.Text = username + ": " + msg + Environment.NewLine;
+            
             Border messageBorder = new Border();
             messageBorder.Child = message;
             messageBorder.Margin = new System.Windows.Thickness(3);
             messageBorder.Background = new System.Windows.Media.SolidColorBrush() { Color = Color.FromRgb(246, 250, 255) };
             messageBorder.CornerRadius = new System.Windows.CornerRadius(4);
             chatStackPanel.Children.Add(messageBorder);
-            messageTextInput.Text = "Type";
             messageTextInput.Foreground = new System.Windows.Media.SolidColorBrush() { Color = Color.FromRgb(150, 150, 150) };
+        }
+
+        public void appendMessage(string message) {
+            UpdateDelegate update = new UpdateDelegate(wrapMessage);
+            wrapMessage(message);
+            this.chatStackPanel.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, update, message);
+        }
+
+        private void sendOnClick(object sender, RoutedEventArgs e)
+        {
+            wrapMessage(messageTextInput.Text);
+            clientMessage = new ClientMessage(client.clientSocket, username);
+            clientMessage.sendMessage(messageTextInput.Text);
+            //Socket soc;
+            //ClientMessage clientMessage = new ClientMessage(soc, username);
         }
 
         private void messageTextInputGotFocus(object sender, RoutedEventArgs e)
@@ -105,9 +144,11 @@ namespace Telecomms
 
         private void addGroupOnClick(object sender, RoutedEventArgs e)
         {
-            AddDialog dialog = new AddDialog("Type Group ID");
+            AddDialog dialog = new AddDialog("Type Server Name");
             dialog.ShowDialog();
             initUserView(dialog.result);
+            Server server = new Server();
+            server.Window_Loaded();
         }
     }
 }
