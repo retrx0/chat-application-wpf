@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace Telecomms.src.models
 {
-    class Server
+    class Server : MainWindow
     {
         struct ClientInfo
         {
@@ -19,14 +19,18 @@ namespace Telecomms.src.models
         }
 
         ArrayList clientList;
+        MainWindow mainWindowInstance;
+        int portNumber = 2000;
 
         Socket serverSocket;
 
         byte[] byteData = new byte[1024];
 
-        public Server()
+        public Server(MainWindow mainw, int port)
         {
             clientList = new ArrayList();
+            this.mainWindowInstance = mainw;
+            portNumber = port;
         }
 
         private delegate void UpdateDelegate(string pMessage);
@@ -42,7 +46,7 @@ namespace Telecomms.src.models
                                           ProtocolType.Tcp);
 
                 //Assign the any IP of the machine and listen on port number 1000
-                IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, 2000);
+                IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, portNumber);
 
                 //Bind and listen on the given address
                 serverSocket.Bind(ipEndPoint);
@@ -146,11 +150,9 @@ namespace Telecomms.src.models
 
                         //Set the text of the message that we will broadcast to all users
                         msgToSend.strMessage = msgReceived.strName + ": " + msgReceived.strMessage;
-                        Application.Current.Dispatcher.Invoke(new Action(() => {
-                            MainWindow main = new MainWindow();
-                            //main.getChatStack.Children.Add(msgReceived.strMessage);
-                            main.appendMessage(msgReceived.strMessage);
-                            Console.WriteLine(msgReceived.strMessage);
+                        Console.WriteLine(msgReceived.strMessage);
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
                         }));
                         break;
 
@@ -193,9 +195,8 @@ namespace Telecomms.src.models
                         }
                     }
                     //textBox1.Text += msgToSend.strMessage;
-                    //UpdateDelegate update = new UpdateDelegate(UpdateMessage);
-                    //this.textBox1.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, update,
-                    //    msgToSend.strMessage + "\r\n");
+                    //UpdateDelegate update = new UpdateDelegate(wrapMessage);
+                    //this.chatStackPanel.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, update,msgToSend.strMessage + "\r\n");
 
                 }
 

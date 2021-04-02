@@ -12,20 +12,21 @@ namespace Telecomms.src.models
     {
         public Socket ClientSocket;
         public string Username;
+        MainWindow mainWindow;
         byte[] byteData = new byte[1024];
 
         private delegate void UpdateDelegate(string pMessage);
 
         private void UpdateMessage(string pMessage)
         {
-            //this.textBox1.Text += pMessage;
+            this.mainWindow.wrapMessage(Username, pMessage);
         }
 
-        public ClientMessage(Socket pSocket, string pName)
+        public ClientMessage(Socket pSocket, string pName, MainWindow mainw)
         {
             ClientSocket = pSocket;
             Username = pName;
-
+            this.mainWindow = mainw;
             ClientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
                     new AsyncCallback(OnReceive), ClientSocket);
         }
@@ -35,7 +36,6 @@ namespace Telecomms.src.models
 
             Socket clientSocket = (Socket)ar.AsyncState;
             clientSocket.EndReceive(ar);
-
 
             //Transform the array of bytes received from the user into an
             //intelligent form of object Data

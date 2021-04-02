@@ -25,11 +25,14 @@ namespace Telecomms.src.models
         public Socket clientSocket;
         public string strName;
         public string username;
+        int portNumber = 2000;
 
         public delegate string getNameDelegate();
         public delegate void UjFormDelegate();
 
-        public Client() {}
+        public Client(int port) {
+            this.portNumber = port;
+        }
 
         public static string GetLocalIPAddress()
         {
@@ -58,7 +61,7 @@ namespace Telecomms.src.models
                 IPAddress ipAddress = IPAddress.Parse(myIpAddress);
 
                 //Server is listening on port 1000
-                IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, 2000);
+                IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, portNumber);
 
                 //Connect to the server
                 clientSocket.Connect(ipEndPoint);
@@ -83,7 +86,6 @@ namespace Telecomms.src.models
                 //l_fhName = this.textBox1.Text;
                 //getNameDelegate fhName = new getNameDelegate(getLoginName);
                 //l_fhName = (string)this.textBox1.Dispatcher.Invoke(fhName, null);
-
 
                 msgToSend.strName = username;
                 msgToSend.strMessage = null;

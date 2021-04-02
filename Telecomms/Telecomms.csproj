@@ -64,8 +64,10 @@
     </Compile>
     <Compile Include="src\models\Client.cs" />
     <Compile Include="src\models\ClientMessage.cs" />
+    <Compile Include="src\models\ClientSimple.cs" />
     <Compile Include="src\models\Data.cs" />
     <Compile Include="src\models\Server.cs" />
+    <Compile Include="src\models\ServerSimple.cs" />
     <Page Include="LoginWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

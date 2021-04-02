@@ -44,7 +44,21 @@
                 </Button>
                 <Button Background="Transparent"
                         BorderThickness="0" 
-                        Click="addOnClick"
+                        Click="addUserOnClick"
+                        Style="{StaticResource CustomButton}"
+                        Height="40"
+                        Width="100"
+                        Grid.Column="1"
+                        HorizontalAlignment="Left"
+                        >
+                    <TextBlock Text="Add User"
+                                Foreground="White"
+                                FontSize="18"
+                                />
+                </Button>
+                <Button Background="Transparent"
+                        BorderThickness="0" 
+                        Click="joinOnClick"
                         Style="{StaticResource CustomButton}"
                         Height="40"
                         Width="100"
@@ -56,19 +70,19 @@
                                 FontSize="18"
                                 />
                 </Button>
-                    <Button Background="Transparent"
-                        Grid.Column="0"
-                        Style="{StaticResource CustomButton}"
-                        Height="40"
-                        Width="120"
-                        HorizontalAlignment="Right"
-                        BorderThickness="0" 
-                        Click="addGroupOnClick" Margin="0,11,10.333,12"
-                        >
+                <Button Background="Transparent"
+                    Grid.Column="0"
+                    Style="{StaticResource CustomButton}"
+                    Height="40"
+                    Width="120"
+                    HorizontalAlignment="Right"
+                    BorderThickness="0" 
+                    Click="addGroupOnClick" Margin="0,11,10.333,12"
+                    >
                     <TextBlock Text="Create Group"
-                                Foreground="White"
-                                FontSize="18"
-                                />
+                            Foreground="White"
+                            FontSize="18"
+                            />
                 </Button>
             </Grid>
         </Border>
@@ -116,14 +130,12 @@
                                   Direction="270"
                                   />
                         </Border.Effect>
-                        <TextBox x:Name="messageTextInput" Text="Type"
+                        <TextBox x:Name="messageTextInput"
                                  BorderThickness="0"
                                  Background="Transparent"
                                  Padding="5"
                                  VerticalAlignment="Center"
-                                 FontSize="20" 
-                                 GotFocus="messageTextInputGotFocus" 
-                                 Foreground="#999999" 
+                                 FontSize="20"
                                  AutomationProperties.IsRowHeader="True" 
                                  TextWrapping="Wrap" 
                                  TextOptions.TextFormattingMode="Display" 
