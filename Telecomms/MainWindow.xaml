@@ -5,92 +5,114 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Telecomms"
         mc:Ignorable="d"
-        Title="Chat App" Height="850" Width="900"
+        Title="Chat App" Height="850" Width="1200"
         WindowStartupLocation="CenterScreen"
         >
     <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Border>
             <Grid Grid.Row="0" Height="63" Margin="3 3 3 3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="2"
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="1.4*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
                            x:Name="username_text_area" 
                            Text="Username"
-                           HorizontalAlignment="Left"
+                           HorizontalAlignment="Center"
                            VerticalAlignment="Center"
-                           FontSize="25"
+                           FontSize="18"
                            Margin="10"
                            />
-                <Button Grid.Column="2" 
+                    <TextBox Grid.Column="1"
+                             BorderThickness="0"
+                           x:Name="userIdTextView" 
+                           Text="User ID"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           FontSize="16"
+                           Margin="10"
+                           />
+
+                    <Button Grid.Column="2" 
                         Background="Transparent"
                         Style="{StaticResource CustomButton}"
                         Click="logoutOnClick"
                         Width="100"
                         Height="40"
-                        HorizontalAlignment="Right"
+                        HorizontalAlignment="Center"
                         >
-                    <TextBlock Text="Logout"
+                        <TextBlock Text="Logout"
                                    Foreground="White"
                                    FontSize="18"
                                    />
-                </Button>
-                <Button Background="Transparent"
+                    </Button>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button Background="Transparent"
                         BorderThickness="0" 
                         Click="addUserOnClick"
                         Style="{StaticResource CustomButton}"
                         Height="40"
                         Width="100"
-                        Grid.Column="1"
-                        HorizontalAlignment="Left"
+                        Grid.Column="0"
+                        HorizontalAlignment="Stretch"
                         >
-                    <TextBlock Text="Add User"
+                        <TextBlock Text="Add User"
                                 Foreground="White"
                                 FontSize="18"
                                 />
-                </Button>
-                <Button Background="Transparent"
+                    </Button>
+                    <Button Background="Transparent"
                         BorderThickness="0" 
                         Click="joinOnClick"
                         Style="{StaticResource CustomButton}"
                         Height="40"
                         Width="100"
-                        Grid.Column="0"
-                        HorizontalAlignment="Left"
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"
                         >
-                    <TextBlock Text="Join Group"
+                        <TextBlock Text="Join Group"
                                 Foreground="White"
                                 FontSize="18"
                                 />
-                </Button>
-                <Button Background="Transparent"
-                    Grid.Column="0"
-                    Style="{StaticResource CustomButton}"
-                    Height="40"
-                    Width="120"
-                    HorizontalAlignment="Right"
-                    BorderThickness="0" 
-                    Click="addGroupOnClick" Margin="0,11,10.333,12"
+                    </Button>
+                    <Button Background="Transparent"
+                        Grid.Column="2"
+                        Style="{StaticResource CustomButton}"
+                        Height="40"
+                        Width="120"
+                        HorizontalAlignment="Stretch"
+                        BorderThickness="0" 
+                        Click="addGroupOnClick" 
                     >
-                    <TextBlock Text="Create Group"
+                        <TextBlock Text="Create Group"
                             Foreground="White"
                             FontSize="18"
                             />
-                </Button>
+                    </Button>
+                </Grid>
             </Grid>
         </Border>
         <Grid Grid.Row="1" Margin="0,0,0.333,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="usersStack" 
                         Grid.Column="0"
@@ -100,20 +122,47 @@
             </ScrollViewer>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="60"/>
                 </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition  Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                           Grid.Column="0"
+                            HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                           Text="" 
+                           FontSize="25"
+                           Padding="10"
+                           x:Name="chatTitle"
+                           />
+                    <TextBox
+                           Grid.Column="1"
+                           IsReadOnly="True"
+                           BorderThickness="0"
+                           HorizontalAlignment="Center"
+                           Text="" 
+                           FontSize="15"
+                           TextWrapping="Wrap"
+                           Padding="10"
+                           x:Name="chatCode"
+                           />
+                </Grid>
+
                 <Border BorderBrush="#FF4A92FF" 
                             CornerRadius="8"
-                            BorderThickness="1">
+                            BorderThickness="1" Grid.Row="1">
                     <ScrollViewer VerticalScrollBarVisibility="Visible">
-                        <StackPanel Grid.Row="0" Margin="0" x:Name="chatStackPanel">
+                        <StackPanel Margin="0" 
+                                    x:Name="chatStackPanel">
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
-                
-                
-                <Grid Grid.Row="1" Margin="5">
+                <Grid Grid.Row="2" Margin="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="100"/>
@@ -152,15 +201,15 @@
                             Grid.Column="1"
                             HorizontalAlignment="Center"
                                 >
-                            <TextBlock Text="Send"
+                        <TextBlock Text="Send"
                                        FontSize="18"
                                        Foreground="White"
                                        />
-                        </Button>
+                    </Button>
                 </Grid>
-                
+
             </Grid>
         </Grid>
-        </Grid>
-        
+    </Grid>
+
 </Window>

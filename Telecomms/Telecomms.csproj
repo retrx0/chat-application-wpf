@@ -62,6 +62,7 @@
     <Compile Include="components\AddDialog.xaml.cs">
       <DependentUpon>AddDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\CustomButton.cs" />
     <Compile Include="src\models\Client.cs" />
     <Compile Include="src\models\ClientMessage.cs" />
     <Compile Include="src\models\ClientSimple.cs" />

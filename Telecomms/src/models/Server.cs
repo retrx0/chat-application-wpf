@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace Telecomms.src.models
 {
-    class Server : MainWindow
+    public class Server : MainWindow
     {
         struct ClientInfo
         {
@@ -21,6 +21,8 @@ namespace Telecomms.src.models
         ArrayList clientList;
         MainWindow mainWindowInstance;
         int portNumber = 2000;
+
+        public string groupCode { get; set; }
 
         Socket serverSocket;
 
@@ -75,7 +77,12 @@ namespace Telecomms.src.models
                 clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
                     new AsyncCallback(OnReceive), clientSocket);
 
-            }
+                //Application.Current.Dispatcher.BeginInvoke(new Action(() =>{
+                //    mainWindowInstance.initUserView("User: Unknown", CustomButton.ButtonType.USER);
+                //    }
+                //));
+
+                }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "SGSserverTCP");
