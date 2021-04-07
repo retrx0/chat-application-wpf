@@ -16,6 +16,8 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Net;
 using Telecomms.src;
+using Microsoft.Win32;
+using System.IO;
 
 namespace Telecomms
 {
@@ -56,9 +58,11 @@ namespace Telecomms
             this.username = username;
             this.password = password;
             InitializeComponent();
+
             username_text_area.Text = username;
+
             Random rand = new Random();
-            _randPort = rand.Next(2001, 3000);
+            _randPort = rand.Next(1001, 2501);
             mServer = new Server(this, _randPort);
             mServer.Window_Loaded();
             userIdTextView.Text = "UID: " + encodeIpAndPort(_randPort, username, true);
@@ -75,28 +79,50 @@ namespace Telecomms
             this.Close();
         }
 
-        public void initUserView(string title, CustomButton.ButtonType bt, object o)
+        public void appendSomeInfo(string info)
+        {
+            TextBlock inf = new TextBlock()
+            {
+                Text = info,
+                Margin = new System.Windows.Thickness(5),
+                Padding = new System.Windows.Thickness(0),
+                FontSize = 20,
+                TextWrapping = TextWrapping.Wrap,
+                HorizontalAlignment = HorizontalAlignment.Center
+        };
+
+            this.chatStackPanel.Children.Add(inf);
+        }
+
+        public void initUserView(string title, CustomButton.ButtonType bt, Client o, Server s)
         {
             CustomButton newUser = new CustomButton(title);
             newUser.buttonType = bt;
             switch (bt){
                 case CustomButton.ButtonType.CREATED_GROUP:
-                    newUser.server = (Server) o;
+                    newUser.server = s;
                         break;
-                case CustomButton.ButtonType.JOINED_GROUP:
-                    newUser.client = (Client) o;
-                    break;
-                case CustomButton.ButtonType.USER:
-                    newUser.client = (Client) o;
+                default:
+                    newUser.client = o;
+                    Console.WriteLine(newUser.client.clientSocket.LocalEndPoint);
+                    ClientMessage cm = new ClientMessage(newUser.client.clientSocket , username, this);
+                    newUser.ClientMessage = cm;
                     break;
             }
+
+
             selectedUser = newUser;
-            newUser.Click += new RoutedEventHandler((object s, RoutedEventArgs e) => {
+            newUser.Click += new RoutedEventHandler((object se, RoutedEventArgs e) => {
                 chatTitle.Text = title;
-                chatCode.Text = newUser.server.groupCode;
+                if (newUser.buttonType == CustomButton.ButtonType.CREATED_GROUP) chatCode.Text = newUser.server.groupCode;
+                else chatCode.Text = "";
                 selectedUser = newUser;
                 Console.WriteLine(selectedUser.Content);
-                /*chatStackPanel.Children.Clear();*/
+                chatStackPanel.Children.Clear();
+                foreach (string m in selectedUser.Messages)
+                {
+                    wrapMessage("", m);
+                }
             });
 
             Grid grid = new Grid();
@@ -129,7 +155,7 @@ namespace Telecomms
             message.FontSize = 20;
             message.TextWrapping = TextWrapping.Wrap;
 
-            message.Text = user + ": " + msg + Environment.NewLine;
+            message.Text = user +": "+ msg + Environment.NewLine;
 
             Border messageBorder = new Border();
             messageBorder.Child = message;
@@ -148,19 +174,23 @@ namespace Telecomms
                     groupClientMessage = new ClientMessage(selectedUser.client.clientSocket, username, this);
                     groupClientMessage.sendMessage(messageTextInput.Text);
                     wrapMessage(username, messageTextInput.Text);
+                    selectedUser.Messages.Add(username + ": " + messageTextInput.Text);
                     break;
                 case CustomButton.ButtonType.USER:
                     mClientMessage = new ClientMessage(selectedUser.client.clientSocket, username, this);
                     mClientMessage.sendMessage(messageTextInput.Text);
                     wrapMessage(username, messageTextInput.Text);
+                    selectedUser.Messages.Add(username + ": " + messageTextInput.Text);
                     break;
                 default:
                     mgroupClientMessage = new ClientMessage(mGroupCLient.clientSocket, username, this);
                     mgroupClientMessage.sendMessage(messageTextInput.Text);
-                    testClient = new Client(2005);
-                    testClient.OnLoginPressed();
-                    ClientMessage cm = new ClientMessage(testClient.clientSocket, username, this);
-                    cm.sendMessage(messageTextInput.Text);
+
+                    //testClient = new Client(2005);
+                    //testClient.OnLoginPressed();
+
+                    //ClientMessage cm = new ClientMessage(testClient.clientSocket, username, this);
+                    //cm.sendMessage(messageTextInput.Text);
                     //wrapMessage(username, messageTextInput.Text);
                     break;
             }
@@ -168,35 +198,38 @@ namespace Telecomms
 
         public void showAndSetupDialog(UserRequestType urt, int port, string title, string messageBoxTitle)
         {
+            Random rand = new Random();
+            int randPort = rand.Next(2502, 3001);
             AddDialog dialog = new AddDialog(title);
             dialog.ShowDialog();
             if (dialog.result != null) {
                 switch (urt) {
                     case UserRequestType.CREATE_SERVER:
-                        groupServer = new Server(this, port);
+                        groupServer = new Server(this, randPort);
                         groupServer.Window_Loaded();
-                        mGroupCLient = new Client(2000);
+
+                        mGroupCLient = new Client(randPort);
                         mGroupCLient.OnLoginPressed();
                         
-                        initUserView("Group: " + dialog.result, CustomButton.ButtonType.CREATED_GROUP, groupServer);
+                        initUserView("Group: " + dialog.result, CustomButton.ButtonType.CREATED_GROUP,null, groupServer);
                         chatTitle.Text = dialog.result;
-                        string code = encodeIpAndPort(2000, dialog.result, true);
+                        string code = encodeIpAndPort(randPort, dialog.result, true);
                         groupServer.groupCode = code;
                         chatCode.Text = code;
                         break;
                     case UserRequestType.JOIN_SERVER:
-                        groupClient = new Client(port);
-                        groupClient.OnLoginPressed();
-
-                        testServer = new Server(this, 2005);
-                        testServer.Window_Loaded();
-
                         string[] decode = decodeIpAndPort(dialog.result);
                         if (decode != null)
                         {
                             chatTitle.Text = decode[0];
-                            initUserView("Group: " + decode[0], CustomButton.ButtonType.JOINED_GROUP, groupClient);
+                            groupClient = new Client(Convert.ToInt32(decode[2]));
+                            groupClient.OnLoginPressed();
+                            initUserView("Group: " + decode[0], CustomButton.ButtonType.JOINED_GROUP, groupClient, null);
                         }
+
+                        //testServer = new Server(this, 2005);
+                        //testServer.Window_Loaded();
+
                         break;
                     case UserRequestType.ADDUSER:
                         string[] usrDecode = decodeIpAndPort(dialog.result);
@@ -204,7 +237,7 @@ namespace Telecomms
                         {
                             mClient = new Client(Convert.ToInt32(usrDecode[2]));
                             mClient.OnLoginPressed();
-                            initUserView("User: " + usrDecode[0], CustomButton.ButtonType.USER, mClient);
+                            initUserView("User: " + usrDecode[0], CustomButton.ButtonType.USER, mClient, null);
                         }
                         break;
                 }
@@ -280,8 +313,6 @@ namespace Telecomms
                 return null;
             }
         }
-
-
         public string convertToIp(string iph)
         {
             char[] arr = iph.ToCharArray();
@@ -305,6 +336,27 @@ namespace Telecomms
             return Encoding.UTF8.GetString(bytes);
         }
 
+        private void sendFileOnClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.ShowDialog();
+            if (fileDialog.CheckPathExists)
+            {
+                FileInfo fi = new FileInfo(fileDialog.FileName);
+                Console.WriteLine(fi.FullName);
+                if (selectedUser != null)
+                {
+                   byte[] fileBytes = File.ReadAllBytes(fi.FullName);
+                    Console.WriteLine("File Bytes "+fileBytes);
+                    ClientMessage cm = new ClientMessage(selectedUser.client.clientSocket,username, this);
+                    cm.sendFile(fi.Name, fileBytes);
+                }
+                //Stream s = client.GetStream();
+                //byte[] b1 = File.ReadAllBytes(op.FileName);
+                //s.Write(b1, 0, b1.Length);
+                //client.Close();
+            }
+        }
     }
 
 }

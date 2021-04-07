@@ -24,14 +24,22 @@ namespace Telecomms.src.models
 
         public Socket clientSocket;
         public string strName;
-        public string username;
-        int portNumber = 2000;
+        public string username { get; set; }
+        public int portNumber { get; set; } = 2000;
+        public IPEndPoint ipEndPoint { get; set; }
 
         public delegate string getNameDelegate();
         public delegate void UjFormDelegate();
 
         public Client(int port) {
             this.portNumber = port;
+
+            string myIpAddress = GetLocalIPAddress();
+            IPAddress ipAddress = IPAddress.Parse(myIpAddress);
+            ipEndPoint = new IPEndPoint(ipAddress, portNumber);
+            //clientSocket.Connect(ipEndPoint);
+            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
         }
 
         public static string GetLocalIPAddress()
@@ -51,21 +59,16 @@ namespace Telecomms.src.models
         {
             try
             {
-                string l_ip;
-                string myIpAddress = GetLocalIPAddress();
-                Console.WriteLine(myIpAddress);
-                clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
+                //string l_ip;
+                
                 //getNameDelegate IP = new getNameDelegate(getIP);
                 //l_ip = (string)this.Dispatcher.Invoke(IP, null);
-                IPAddress ipAddress = IPAddress.Parse(myIpAddress);
 
                 //Server is listening on port 1000
-                IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, portNumber);
 
                 //Connect to the server
-                clientSocket.Connect(ipEndPoint);
-                clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
+                //clientSocket.Connect(ipEndPoint);
+                //clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
             }
             catch (Exception ex)
             {

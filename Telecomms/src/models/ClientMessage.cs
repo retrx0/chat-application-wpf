@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace Telecomms.src.models
 {
-    class ClientMessage
+    public class ClientMessage
     {
         public Socket ClientSocket;
         public string Username;
@@ -59,6 +59,32 @@ namespace Telecomms.src.models
 
             byte[] b = msgToSend.ToByte();
             ClientSocket.Send(b);
+        }
+
+        public void sendFile(string filename, byte[] b)
+        {
+            Data filrToSend = new Data();
+            filrToSend.cmdCommand = Command.File;
+
+            filrToSend.strName = filename;
+
+            ClientSocket.Send(b);
+        }
+
+        public void broadCastMessage(string message, Server server)
+        {
+            Data broadCastMsg = new Data();
+            broadCastMsg.cmdCommand = Command.Broadcast;
+            broadCastMsg.strMessage = message;
+            broadCastMsg.strName = Username;
+
+            foreach (var c in server.clientList)
+            {
+                Console.WriteLine(c);
+                byte[] b = broadCastMsg.ToByte();
+                ClientSocket.Send(b);
+            }
+
         }
 
     }

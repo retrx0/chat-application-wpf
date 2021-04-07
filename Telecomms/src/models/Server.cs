@@ -18,7 +18,7 @@ namespace Telecomms.src.models
             public string strName;  //Name by which the user logged into the chat room
         }
 
-        ArrayList clientList;
+        public ArrayList clientList { get; set; }
         MainWindow mainWindowInstance;
         int portNumber = 2000;
 
@@ -78,7 +78,7 @@ namespace Telecomms.src.models
                     new AsyncCallback(OnReceive), clientSocket);
 
                 //Application.Current.Dispatcher.BeginInvoke(new Action(() =>{
-                //    mainWindowInstance.initUserView("User: Unknown", CustomButton.ButtonType.USER);
+                //    mainWindowInstance.initUserView("User: Unknown", CustomButton.ButtonType.USER, new Client(3000));
                 //    }
                 //));
 
@@ -88,6 +88,8 @@ namespace Telecomms.src.models
                 MessageBox.Show(ex.Message, "SGSserverTCP");
             }
         }
+
+        bool flag1 = true;
 
         private void OnReceive(IAsyncResult ar)
         {
@@ -109,29 +111,41 @@ namespace Telecomms.src.models
                 //then when send to others the type of the message remains the same
                 msgToSend.cmdCommand = msgReceived.cmdCommand;
                 msgToSend.strName = msgReceived.strName;
+                Client cl = null;
+                if (flag1)
+                {
+                    string[] ipEnd = clientSocket.LocalEndPoint.ToString().Split(':');
+                    cl = new Client(Convert.ToInt32(ipEnd[1]));
+                    cl.username = msgReceived.strName;
+                    Console.WriteLine("------>" + cl.ipEndPoint.Port);
+                }
+
 
                 switch (msgReceived.cmdCommand)
                 {
                     case Command.Login:
+                        if (flag1)
+                        {
+                            //When a user logs in to the server then we add her to our
+                            //list of clients
+                            msgToSend.cmdCommand = Command.Accept;
+                            //message = msgToSend.ToByte();
+                            //clientSocket.Send(message);
 
-                        //When a user logs in to the server then we add her to our
-                        //list of clients
+                            ClientInfo clientInfo = new ClientInfo();
+                            clientInfo.socket = clientSocket;
+                            clientInfo.strName = msgReceived.strName;
 
-                        msgToSend.cmdCommand = Command.Accept;
-                        //message = msgToSend.ToByte();
-                        //clientSocket.Send(message);
-
-
-                        ClientInfo clientInfo = new ClientInfo();
-                        clientInfo.socket = clientSocket;
-                        clientInfo.strName = msgReceived.strName;
-
-                        clientList.Add(clientInfo);
-
-                        //Set the text of the message that we will broadcast to all users
-                        msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
+                            clientList.Add(clientInfo);
+                            //Set the text of the message that we will broadcast to all users
+                            msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
+                            Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                                mainWindowInstance.appendSomeInfo("<<<" + clientInfo.strName + " has joined the room>>>");
+                                mainWindowInstance.initUserView("New User", CustomButton.ButtonType.JOINED_GROUP, cl, null);
+                            }));
+                            flag1 = false;
+                        }
                         break;
-
                     case Command.Logout:
 
                         //When a user wants to log out of the server then we search for her 
@@ -151,6 +165,9 @@ namespace Telecomms.src.models
                         clientSocket.Close();
 
                         msgToSend.strMessage = "<<<" + msgReceived.strName + " has left the room>>>";
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            mainWindowInstance.appendSomeInfo("<<<" + msgReceived.strName + " has left the room>>>");
+                        }));
                         break;
 
                     case Command.Message:
@@ -160,6 +177,7 @@ namespace Telecomms.src.models
                         Console.WriteLine(msgReceived.strMessage);
                         Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                             mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
+                            mainWindowInstance.selectedUser.Messages.Add(msgReceived.strName+": "+msgReceived.strMessage);
                         }));
                         break;
 
@@ -183,6 +201,10 @@ namespace Telecomms.src.models
                         clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None,
                                 new AsyncCallback(OnSend), clientSocket);
                         break;
+
+                    case Command.File:
+                        Console.WriteLine(msgReceived.strName);
+                        break;
                 }
 
                 if (msgToSend.cmdCommand != Command.List)   //List messages are not broadcasted
@@ -198,12 +220,14 @@ namespace Telecomms.src.models
                             //clientInfo.socket.BeginSend(message, 0, message.Length, SocketFlags.None,
                             //new AsyncCallback(OnSend), clientInfo.socket);
                             clientInfo.socket.Send(message, 0, message.Length, SocketFlags.None);
-
+                            //Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            //    mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
+                            //    mainWindowInstance.selectedUser.Messages.Add(msgReceived.strName + ": " + msgReceived.strMessage);
+                            //}));
                         }
                     }
                     //textBox1.Text += msgToSend.strMessage;
                     //UpdateDelegate update = new UpdateDelegate(wrapMessage);
-                    //this.chatStackPanel.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, update,msgToSend.strMessage + "\r\n");
 
                 }
 

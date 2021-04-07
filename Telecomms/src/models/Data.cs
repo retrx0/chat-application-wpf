@@ -15,6 +15,8 @@ namespace Telecomms.src.models
         List,       //Get a list of users in the chat room from the server
         Accept,
         Decline,
+        Broadcast,
+        File,
         Null        //No command
     }
 

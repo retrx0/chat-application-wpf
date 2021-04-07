@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -21,7 +23,17 @@ namespace Telecomms.src
 
         public Server server { get; set; }
 
+        public ArrayList Messages { get; set; }
+
         public ButtonType buttonType { get; set; }
+
+        public ClientMessage ClientMessage { get; set; }
+
+        public string Username { get; set; }
+
+        public Socket ClientSocket { get; set; }
+
+        public MainWindow MainWindow { get; set; }
 
         public CustomButton(string title)
         {   
@@ -37,6 +49,8 @@ namespace Telecomms.src
             this.Background = new System.Windows.Media.SolidColorBrush() { Color = Color.FromRgb(250, 250, 250) };
             this.Content = title;
             this.FontSize = 20;
+
+            Messages = new ArrayList();
         }
 
     }
