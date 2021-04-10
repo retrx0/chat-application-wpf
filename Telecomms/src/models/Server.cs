@@ -12,7 +12,7 @@ namespace Telecomms.src.models
 {
     public class Server : MainWindow
     {
-        struct ClientInfo
+        public struct ClientInfo
         {
             public Socket socket;   //Socket of the client
             public string strName;  //Name by which the user logged into the chat room
@@ -24,13 +24,13 @@ namespace Telecomms.src.models
 
         public string groupCode { get; set; }
 
-        Socket serverSocket;
+        public Socket serverSocket { get; set; }
 
-        byte[] byteData = new byte[1024];
+        byte[] byteData = new byte[20 * 1024];
 
         public Server(MainWindow mainw, int port)
         {
-            clientList = new ArrayList();
+            clientList = new ArrayList<ClientInfo>();
             this.mainWindowInstance = mainw;
             portNumber = port;
         }
@@ -74,8 +74,8 @@ namespace Telecomms.src.models
                 serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
 
                 //Once the client connects then start receiving the commands from her
-                clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
-                    new AsyncCallback(OnReceive), clientSocket);
+                //clientSocket.Receive(byteData, totalBytesRead, byteData.Length - totalBytesRead, SocketFlags.None);
+                clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), clientSocket);
 
                 //Application.Current.Dispatcher.BeginInvoke(new Action(() =>{
                 //    mainWindowInstance.initUserView("User: Unknown", CustomButton.ButtonType.USER, new Client(3000));
@@ -100,8 +100,8 @@ namespace Telecomms.src.models
 
                 //Transform the array of bytes received from the user into an
                 //intelligent form of object Data
-                Data msgReceived = new Data(byteData);
 
+                Data msgReceived = new Data(byteData);
                 //We will send this object in response the users request
                 Data msgToSend = new Data();
 
@@ -115,9 +115,9 @@ namespace Telecomms.src.models
                 if (flag1)
                 {
                     string[] ipEnd = clientSocket.LocalEndPoint.ToString().Split(':');
-                    cl = new Client(Convert.ToInt32(ipEnd[1]));
+                    cl = new Client(int.Parse(ipEnd[1]));
                     cl.username = msgReceived.strName;
-                    Console.WriteLine("------>" + cl.ipEndPoint.Port);
+                    cl.clientType = Client.ClientType.NEW_USER;
                 }
 
 
@@ -141,7 +141,10 @@ namespace Telecomms.src.models
                             msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
                             Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                                 mainWindowInstance.appendSomeInfo("<<<" + clientInfo.strName + " has joined the room>>>");
-                                mainWindowInstance.initUserView("New User", CustomButton.ButtonType.JOINED_GROUP, cl, null);
+                                if(cl.clientType == Client.ClientType.NEW_USER)
+                                {
+                                    //mainWindowInstance.initUserView("New User", CustomButton.ButtonType.JOINED_GROUP, cl, null);
+                                }
                             }));
                             flag1 = false;
                         }
@@ -200,10 +203,20 @@ namespace Telecomms.src.models
                         //Send the name of the users in the chat room
                         clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None,
                                 new AsyncCallback(OnSend), clientSocket);
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            Console.WriteLine("LIST: "+msgToSend.strMessage);
+                            //mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
+                        }));
                         break;
 
                     case Command.File:
-                        Console.WriteLine(msgReceived.strName);
+                        Console.WriteLine(msgReceived.strMessage);
+                        string[] fn = msgReceived.strName.Split('\\');
+                        string filename = fn[fn.Length - 1];
+                        Console.WriteLine(filename);
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            mainWindowInstance.onDownloadFile(filename,msgReceived.strMessage);
+                        }));
                         break;
                 }
 
@@ -256,6 +269,10 @@ namespace Telecomms.src.models
                 MessageBox.Show(ex.Message, "SGSserverTCP");
             }
         }
+
+    }
+
+    public class ArrayList<T> : ArrayList { 
 
     }
 }

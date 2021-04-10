@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +12,10 @@ namespace Telecomms.src.models
 {
     public class ClientMessage
     {
-        public Socket ClientSocket;
-        public string Username;
+        public static Socket ClientSocket;
+        public static string Username;
         MainWindow mainWindow;
-        byte[] byteData = new byte[1024];
+        byte[] byteData = new byte[8192];
 
         private delegate void UpdateDelegate(string pMessage);
 
@@ -27,8 +29,7 @@ namespace Telecomms.src.models
             ClientSocket = pSocket;
             Username = pName;
             this.mainWindow = mainw;
-            ClientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
-                    new AsyncCallback(OnReceive), ClientSocket);
+            ClientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), ClientSocket);
         }
 
         private void OnReceive(IAsyncResult ar)
@@ -41,8 +42,7 @@ namespace Telecomms.src.models
             //intelligent form of object Data
             Data msgReceived = new Data(byteData);
 
-            ClientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None,
-                                    new AsyncCallback(OnReceive), ClientSocket);
+            ClientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), ClientSocket);
 
             UpdateDelegate update = new UpdateDelegate(UpdateMessage);
             ///this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, update,
@@ -61,29 +61,37 @@ namespace Telecomms.src.models
             ClientSocket.Send(b);
         }
 
-        public void sendFile(string filename, byte[] b)
+        public void sendFile(string filename,string content,byte[] b)
         {
             Data filrToSend = new Data();
             filrToSend.cmdCommand = Command.File;
-
+            filrToSend.strMessage = content;
             filrToSend.strName = filename;
-
-            ClientSocket.Send(b);
+            byte[] fileBytes = File.ReadAllBytes(filename);
+            byte[] be = filrToSend.ToByte();
+            ClientSocket.Send(be);
+            //ClientSocket.Send(b);
         }
 
-        public void broadCastMessage(string message, Server server)
+        public static void broadCastMessage(string message, Server server)
         {
             Data broadCastMsg = new Data();
-            broadCastMsg.cmdCommand = Command.Broadcast;
+            broadCastMsg.cmdCommand = Command.List;
             broadCastMsg.strMessage = message;
             broadCastMsg.strName = Username;
+            byte[] b = broadCastMsg.ToByte();
+            ClientSocket.Send(b);
 
-            foreach (var c in server.clientList)
-            {
-                Console.WriteLine(c);
-                byte[] b = broadCastMsg.ToByte();
-                ClientSocket.Send(b);
-            }
+            //foreach (Server.ClientInfo c in server.clientList)
+            //{
+            //    string[] s = c.socket.LocalEndPoint.ToString().Split(':');
+            //    Console.WriteLine(int.Parse(s[1]));
+            //    IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, int.Parse(s[1]));
+            //    byte[] b = broadCastMsg.ToByte();
+            //    server.serverSocket.Bind(c.socket.LocalEndPoint);
+            //    server.serverSocket.Send(b);
+            //    c.socket.Send(b);
+            //}
 
         }
 

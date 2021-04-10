@@ -28,11 +28,20 @@ namespace Telecomms.src.models
         public int portNumber { get; set; } = 2000;
         public IPEndPoint ipEndPoint { get; set; }
 
+        public enum ClientType {
+            NEW_USER, JOIN_GROUP, NONE
+        }
+
+        public ClientType clientType { get; set; }
+
+        public bool addToView { get; set; }
+
         public delegate string getNameDelegate();
         public delegate void UjFormDelegate();
 
         public Client(int port) {
             this.portNumber = port;
+            this.clientType = ClientType.NONE;
 
             string myIpAddress = GetLocalIPAddress();
             IPAddress ipAddress = IPAddress.Parse(myIpAddress);
@@ -112,10 +121,10 @@ namespace Telecomms.src.models
             {
 
                 clientSocket.EndSend(ar);
-                byte[] byteData = new byte[1024];
+                byte[] byteData = new byte[8192];
 
                 //Várunk a válaszra
-                clientSocket.Receive(byteData, 0, 1024, SocketFlags.None);
+                clientSocket.Receive(byteData, 0, 8192, SocketFlags.None);
 
                 Data msg = new Data(byteData);
 

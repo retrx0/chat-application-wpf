@@ -183,15 +183,16 @@ namespace Telecomms
                     selectedUser.Messages.Add(username + ": " + messageTextInput.Text);
                     break;
                 default:
-                    mgroupClientMessage = new ClientMessage(mGroupCLient.clientSocket, username, this);
-                    mgroupClientMessage.sendMessage(messageTextInput.Text);
+                    //mgroupClientMessage = new ClientMessage(mGroupCLient.clientSocket, username, this);
+                    //mgroupClientMessage.sendMessage(messageTextInput.Text);
 
                     //testClient = new Client(2005);
                     //testClient.OnLoginPressed();
 
                     //ClientMessage cm = new ClientMessage(testClient.clientSocket, username, this);
                     //cm.sendMessage(messageTextInput.Text);
-                    //wrapMessage(username, messageTextInput.Text);
+                    wrapMessage(username, messageTextInput.Text);
+                    ClientMessage.broadCastMessage(messageTextInput.Text, groupServer);
                     break;
             }
         }
@@ -208,8 +209,8 @@ namespace Telecomms
                         groupServer = new Server(this, randPort);
                         groupServer.Window_Loaded();
 
-                        mGroupCLient = new Client(randPort);
-                        mGroupCLient.OnLoginPressed();
+                        //mGroupCLient = new Client(randPort);
+                        //mGroupCLient.OnLoginPressed();
                         
                         initUserView("Group: " + dialog.result, CustomButton.ButtonType.CREATED_GROUP,null, groupServer);
                         chatTitle.Text = dialog.result;
@@ -339,23 +340,41 @@ namespace Telecomms
         private void sendFileOnClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.ShowDialog();
-            if (fileDialog.CheckPathExists)
+            if ((bool)fileDialog.ShowDialog())
             {
                 FileInfo fi = new FileInfo(fileDialog.FileName);
-                Console.WriteLine(fi.FullName);
                 if (selectedUser != null)
                 {
                    byte[] fileBytes = File.ReadAllBytes(fi.FullName);
-                    Console.WriteLine("File Bytes "+fileBytes);
                     ClientMessage cm = new ClientMessage(selectedUser.client.clientSocket,username, this);
-                    cm.sendFile(fi.Name, fileBytes);
+                    string content = File.ReadAllText(fi.FullName);
+                    cm.sendFile(fileDialog.FileName, content, fileBytes);
+                    wrapMessage(username, "File "+fi.Name);
                 }
-                //Stream s = client.GetStream();
-                //byte[] b1 = File.ReadAllBytes(op.FileName);
-                //s.Write(b1, 0, b1.Length);
-                //client.Close();
             }
+        }
+
+        public void onDownloadFile(string fileName, string fileContent)
+        {
+            Button download = new Button
+            {
+                Height = 50,
+                Width = 200,
+                BorderThickness = new System.Windows.Thickness(0),
+                Background = new System.Windows.Media.SolidColorBrush() { Color = Color.FromRgb(246, 250, 255) },
+                FontSize = 16,
+                Content = "Download "+fileName
+            };
+
+            download.Click += new RoutedEventHandler((e,s) =>
+            {
+                StreamWriter sw = File.CreateText("../../../"+fileName);
+                sw.WriteLineAsync(fileContent);
+                sw.Close();
+                MessageBox.Show("File Successfully Saved", "File Saved");
+            });
+
+            chatStackPanel.Children.Add(download);
         }
     }
 

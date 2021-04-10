@@ -168,14 +168,15 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
-                    <Button Background="Transparent"
+                    <Button Background="Transparent" x:Name="attachBtn"
                             BorderThickness="0" Click="sendFileOnClick"
-                            
                             >
-                        <Image Width="40"
+                        <Button.Content>
+                            <Image Width="40"
                                Height="40"
-                               Source="./assets/img/atch2.png"
+                               Source="/assets/img/atch2.png"
                                />
+                        </Button.Content>
                     </Button>
                     <Border Grid.Column="1"
                             CornerRadius="8"
