@@ -51,47 +51,57 @@ namespace Telecomms.src.models
 
         public void sendMessage(string message)
         {
-            Data msgToSend = new Data();
-            msgToSend.cmdCommand = Command.Message;
+            try
+            {
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.Message;
 
-            msgToSend.strName = Username;
-            msgToSend.strMessage = message;
+                msgToSend.strName = Username;
+                msgToSend.strMessage = message;
 
-            byte[] b = msgToSend.ToByte();
-            ClientSocket.Send(b);
+                byte[] b = msgToSend.ToByte();
+                ClientSocket.Send(b);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Problem Sending Message");
+            }
         }
 
         public void sendFile(string filename,string content,byte[] b)
         {
-            Data filrToSend = new Data();
-            filrToSend.cmdCommand = Command.File;
-            filrToSend.strMessage = content;
-            filrToSend.strName = filename;
-            byte[] fileBytes = File.ReadAllBytes(filename);
-            byte[] be = filrToSend.ToByte();
-            ClientSocket.Send(be);
-            //ClientSocket.Send(b);
+            try
+            {
+                Data filrToSend = new Data();
+                filrToSend.cmdCommand = Command.File;
+                filrToSend.strMessage = content;
+                filrToSend.strName = filename;
+                byte[] fileBytes = File.ReadAllBytes(filename);
+                byte[] be = filrToSend.ToByte();
+                ClientSocket.Send(be);
+            }
+            catch (Exception r)
+            {
+                MessageBox.Show(r.Message, "Problem sending file");
+            }
         }
 
         public static void broadCastMessage(string message, Server server)
         {
             Data broadCastMsg = new Data();
-            broadCastMsg.cmdCommand = Command.List;
+            broadCastMsg.cmdCommand = Command.Broadcast;
             broadCastMsg.strMessage = message;
             broadCastMsg.strName = Username;
             byte[] b = broadCastMsg.ToByte();
-            ClientSocket.Send(b);
 
-            //foreach (Server.ClientInfo c in server.clientList)
-            //{
-            //    string[] s = c.socket.LocalEndPoint.ToString().Split(':');
-            //    Console.WriteLine(int.Parse(s[1]));
-            //    IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, int.Parse(s[1]));
-            //    byte[] b = broadCastMsg.ToByte();
-            //    server.serverSocket.Bind(c.socket.LocalEndPoint);
-            //    server.serverSocket.Send(b);
-            //    c.socket.Send(b);
-            //}
+            foreach (Server.ClientServerInfo csi in server.clientServerList)
+            {
+                //Client cl = new Client(csi.serverSocket);
+                //cl.OnLoginPressed();
+                //cl.clientSocket.Send(b);
+                Console.WriteLine(csi.username);
+                //server.serverSocket.Send(b);
+            }
 
         }
 

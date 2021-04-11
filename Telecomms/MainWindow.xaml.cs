@@ -30,7 +30,7 @@ namespace Telecomms
         public string password;
 
         Client groupClient;
-        Client mClient;
+        public Client mClient;
         Client mGroupCLient;
         Client testClient;
 
@@ -42,7 +42,7 @@ namespace Telecomms
         Server mServer;
         Server testServer;
 
-        int _randPort = 0;
+        public int _randPort { get; } = 0;
 
         public CustomButton selectedUser { get; set; }
 
@@ -59,8 +59,9 @@ namespace Telecomms
             this.password = password;
             InitializeComponent();
 
-            username_text_area.Text = username;
+            attachBtn.Content = new Image() { Source = new BitmapImage(new Uri("C:/Users/Abdul/Documents/Telecomms/Telecomms/assets/img/atch2.png")) };
 
+            username_text_area.Text = username;
             Random rand = new Random();
             _randPort = rand.Next(1001, 2501);
             mServer = new Server(this, _randPort);
@@ -104,7 +105,7 @@ namespace Telecomms
                         break;
                 default:
                     newUser.client = o;
-                    Console.WriteLine(newUser.client.clientSocket.LocalEndPoint);
+                    Console.WriteLine(o.ipEndPoint.Port);
                     ClientMessage cm = new ClientMessage(newUser.client.clientSocket , username, this);
                     newUser.ClientMessage = cm;
                     break;
@@ -117,10 +118,8 @@ namespace Telecomms
                 if (newUser.buttonType == CustomButton.ButtonType.CREATED_GROUP) chatCode.Text = newUser.server.groupCode;
                 else chatCode.Text = "";
                 selectedUser = newUser;
-                Console.WriteLine(selectedUser.Content);
                 chatStackPanel.Children.Clear();
-                foreach (string m in selectedUser.Messages)
-                {
+                foreach (string m in selectedUser.Messages){
                     wrapMessage("", m);
                 }
             });
@@ -181,6 +180,7 @@ namespace Telecomms
                     mClientMessage.sendMessage(messageTextInput.Text);
                     wrapMessage(username, messageTextInput.Text);
                     selectedUser.Messages.Add(username + ": " + messageTextInput.Text);
+                    
                     break;
                 default:
                     //mgroupClientMessage = new ClientMessage(mGroupCLient.clientSocket, username, this);
@@ -223,8 +223,8 @@ namespace Telecomms
                         if (decode != null)
                         {
                             chatTitle.Text = decode[0];
-                            groupClient = new Client(Convert.ToInt32(decode[2]));
-                            groupClient.OnLoginPressed();
+                            groupClient = new Client(Convert.ToInt32(decode[2]), username, this);
+                            groupClient.ConnectToGroupServer();
                             initUserView("Group: " + decode[0], CustomButton.ButtonType.JOINED_GROUP, groupClient, null);
                         }
 
@@ -236,7 +236,7 @@ namespace Telecomms
                         string[] usrDecode = decodeIpAndPort(dialog.result);
                         if (usrDecode != null)
                         {
-                            mClient = new Client(Convert.ToInt32(usrDecode[2]));
+                            mClient = new Client(Convert.ToInt32(usrDecode[2]), username, this);
                             mClient.OnLoginPressed();
                             initUserView("User: " + usrDecode[0], CustomButton.ButtonType.USER, mClient, null);
                         }
@@ -356,19 +356,38 @@ namespace Telecomms
 
         public void onDownloadFile(string fileName, string fileContent)
         {
+            BitmapImage bimg = new BitmapImage(new Uri("C:/Users/Abdul/Documents/Telecomms/Telecomms/assets/img/file.png"));
+            TextBlock tb = new TextBlock()
+            {
+                Text = "Download " + fileName,
+                FontSize = 16,
+                Visibility = Visibility.Visible,
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            Image img = new Image()
+            {
+                Source = bimg,
+                Height = 130,
+                Width = 70,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            StackPanel sp = new StackPanel();
+            sp.Children.Add(tb);
+            sp.Children.Add(img);
             Button download = new Button
             {
-                Height = 50,
-                Width = 200,
+                Height = 100,
+                Width = 150,
                 BorderThickness = new System.Windows.Thickness(0),
                 Background = new System.Windows.Media.SolidColorBrush() { Color = Color.FromRgb(246, 250, 255) },
                 FontSize = 16,
-                Content = "Download "+fileName
+                Content = sp
             };
 
-            download.Click += new RoutedEventHandler((e,s) =>
+            download.Click += new RoutedEventHandler((e, s) =>
             {
-                StreamWriter sw = File.CreateText("../../../"+fileName);
+                StreamWriter sw = File.CreateText("../../../" + fileName);
                 sw.WriteLineAsync(fileContent);
                 sw.Close();
                 MessageBox.Show("File Successfully Saved", "File Saved");

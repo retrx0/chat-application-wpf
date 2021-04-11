@@ -28,9 +28,7 @@ namespace Telecomms.src.models
         public int portNumber { get; set; } = 2000;
         public IPEndPoint ipEndPoint { get; set; }
 
-        public enum ClientType {
-            NEW_USER, JOIN_GROUP, NONE
-        }
+        public MainWindow mainWindowInstance { get; set; }
 
         public ClientType clientType { get; set; }
 
@@ -39,16 +37,33 @@ namespace Telecomms.src.models
         public delegate string getNameDelegate();
         public delegate void UjFormDelegate();
 
+        public enum ClientType
+        {
+            NEW_USER, JOIN_GROUP, NONE
+        }
+
         public Client(int port) {
             this.portNumber = port;
             this.clientType = ClientType.NONE;
 
-            string myIpAddress = GetLocalIPAddress();
-            IPAddress ipAddress = IPAddress.Parse(myIpAddress);
-            ipEndPoint = new IPEndPoint(ipAddress, portNumber);
-            //clientSocket.Connect(ipEndPoint);
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
+        }
+
+        public Client(int port, string username)
+        {
+            this.portNumber = port;
+            this.clientType = ClientType.NONE;
+            this.username = username;
+            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        public Client(int port, string username, MainWindow main)
+        {
+            this.portNumber = port;
+            this.clientType = ClientType.NONE;
+            this.username = username;
+            this.mainWindowInstance = main;
+            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
         public static string GetLocalIPAddress()
@@ -68,20 +83,16 @@ namespace Telecomms.src.models
         {
             try
             {
-                //string l_ip;
-                
-                //getNameDelegate IP = new getNameDelegate(getIP);
-                //l_ip = (string)this.Dispatcher.Invoke(IP, null);
-
-                //Server is listening on port 1000
-
                 //Connect to the server
                 //clientSocket.Connect(ipEndPoint);
-                //clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
+                string myIpAddress = GetLocalIPAddress();
+                IPAddress ipAddress = IPAddress.Parse(myIpAddress);
+                ipEndPoint = new IPEndPoint(ipAddress, portNumber);
+                clientSocket.BeginConnect(ipAddress, portNumber, new AsyncCallback(OnConnect), null);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSclient");
+                MessageBox.Show(ex.Message, "Connect to user");
             }
         }
 
@@ -100,8 +111,8 @@ namespace Telecomms.src.models
                 //l_fhName = (string)this.textBox1.Dispatcher.Invoke(fhName, null);
 
                 msgToSend.strName = username;
-                msgToSend.strMessage = null;
-
+                if (mainWindowInstance != null) msgToSend.strMessage = "" + mainWindowInstance._randPort;
+                else msgToSend.strMessage = null;
                 byte[] b = msgToSend.ToByte();
 
                 //Send the message to the server
@@ -113,7 +124,80 @@ namespace Telecomms.src.models
             }
         }
 
+        public void ConnectToGroupServer()
+        {
+            try
+            {
+                string myIpAddress = GetLocalIPAddress();
+                IPAddress ipAddress = IPAddress.Parse(myIpAddress);
+                ipEndPoint = new IPEndPoint(ipAddress, portNumber);
+                clientSocket.BeginConnect(ipAddress, portNumber, new AsyncCallback(OnGroupConnect), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Connect to group");
+            }
+        }
 
+        private void OnGroupConnect(IAsyncResult ar)
+        {
+            try
+            {
+                clientSocket.EndConnect(ar);
+
+                //We are connected so we login into the server
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.Broadcast;
+
+                msgToSend.strName = username;
+                msgToSend.strMessage = "" + mainWindowInstance._randPort;
+                byte[] b = msgToSend.ToByte();
+
+                //Send the message to the server
+                clientSocket.BeginSend(b, 0, b.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Connecting to group");
+            }
+        }
+
+        //public void ConnectWithNoCommand()
+        //{
+        //    try
+        //    {
+        //        string myIpAddress = GetLocalIPAddress();
+        //        IPAddress ipAddress = IPAddress.Parse(myIpAddress);
+        //        ipEndPoint = new IPEndPoint(ipAddress, portNumber);
+        //        clientSocket.BeginConnect(ipAddress, portNumber, new AsyncCallback(NoCommandConnect), null);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message, "Connect to group");
+        //    }
+        //}
+        //private void NoCommandConnect(IAsyncResult ar)
+        //{
+        //    try
+        //    {
+        //        clientSocket.EndConnect(ar);
+
+        //        //We are connected so we login into the server
+        //        Data msgToSend = new Data();
+        //        msgToSend.cmdCommand = Command.Null;
+
+        //        msgToSend.strName = username;
+        //        msgToSend.strMessage = "" + mainWindowInstance._randPort;
+        //        byte[] b = msgToSend.ToByte();
+
+        //        //Send the message to the server
+        //        clientSocket.BeginSend(b, 0, b.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message, "Connecting with no command");
+        //    }
+        //}
 
         private void OnSend(IAsyncResult ar)
         {
@@ -134,17 +218,9 @@ namespace Telecomms.src.models
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSclient");
+                MessageBox.Show(ex.Message, "Sending: Client");
             }
         }
-
-        //private void UjForm()
-        //{
-        //    CliensMessage uj_form;
-        //    uj_form = new CliensMessage(clientSocket, textBox1.Text);
-        //    uj_form.Show();
-        //    Close();
-        //}
 
     }
 }

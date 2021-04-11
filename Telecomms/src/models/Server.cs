@@ -18,7 +18,15 @@ namespace Telecomms.src.models
             public string strName;  //Name by which the user logged into the chat room
         }
 
+        public struct ClientServerInfo
+        {
+            public int serverSocket;
+            public string username;  
+        }
+
         public ArrayList clientList { get; set; }
+        public ArrayList clientServerList { get; set; }
+
         MainWindow mainWindowInstance;
         int portNumber = 2000;
 
@@ -30,7 +38,8 @@ namespace Telecomms.src.models
 
         public Server(MainWindow mainw, int port)
         {
-            clientList = new ArrayList<ClientInfo>();
+            clientList = new ArrayList();
+            clientServerList = new ArrayList();
             this.mainWindowInstance = mainw;
             portNumber = port;
         }
@@ -61,7 +70,7 @@ namespace Telecomms.src.models
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSserverTCP");
+                MessageBox.Show(ex.Message, "Creating Server");
             }
         }
         private void OnAccept(IAsyncResult ar)
@@ -85,7 +94,7 @@ namespace Telecomms.src.models
                 }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSserverTCP");
+                MessageBox.Show(ex.Message, "Connecting to Server");
             }
         }
 
@@ -114,16 +123,25 @@ namespace Telecomms.src.models
                 Client cl = null;
                 if (flag1)
                 {
-                    string[] ipEnd = clientSocket.LocalEndPoint.ToString().Split(':');
-                    cl = new Client(int.Parse(ipEnd[1]));
-                    cl.username = msgReceived.strName;
-                    cl.clientType = Client.ClientType.NEW_USER;
+                    if (msgReceived.strMessage != null)
+                    {
+                        Console.WriteLine("--->>>"+msgReceived.strMessage);
+                        cl = new Client(int.Parse(msgReceived.strMessage), msgReceived.strName);
+                        cl.clientType = Client.ClientType.NEW_USER;
+                        cl.OnLoginPressed();
+                    }
                 }
 
 
                 switch (msgReceived.cmdCommand)
                 {
                     case Command.Login:
+
+                        ClientInfo clientInfo = new ClientInfo();
+                        clientInfo.socket = clientSocket;
+                        clientInfo.strName = msgReceived.strMessage;
+                        clientList.Add(clientInfo);
+
                         if (flag1)
                         {
                             //When a user logs in to the server then we add her to our
@@ -132,21 +150,21 @@ namespace Telecomms.src.models
                             //message = msgToSend.ToByte();
                             //clientSocket.Send(message);
 
-                            ClientInfo clientInfo = new ClientInfo();
-                            clientInfo.socket = clientSocket;
-                            clientInfo.strName = msgReceived.strName;
-
-                            clientList.Add(clientInfo);
                             //Set the text of the message that we will broadcast to all users
                             msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
                             Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                                mainWindowInstance.appendSomeInfo("<<<" + clientInfo.strName + " has joined the room>>>");
-                                if(cl.clientType == Client.ClientType.NEW_USER)
-                                {
-                                    //mainWindowInstance.initUserView("New User", CustomButton.ButtonType.JOINED_GROUP, cl, null);
-                                }
-                            }));
-                            flag1 = false;
+                                string someinfo = "<< " + msgReceived.strName + " added >>";
+                                mainWindowInstance.appendSomeInfo(someinfo);
+                                if (msgReceived.strMessage != null)
+                                    {
+                                        if (cl.clientType == Client.ClientType.NEW_USER)
+                                        {
+                                            mainWindowInstance.initUserView("User: "+msgReceived.strName, CustomButton.ButtonType.USER, cl, null);
+                                            mainWindowInstance.selectedUser.Messages.Add(someinfo);
+                                        }
+                                    }
+                                }));
+                                flag1 = false;
                         }
                         break;
                     case Command.Logout:
@@ -196,17 +214,17 @@ namespace Telecomms.src.models
                         {
                             //To keep things simple we use asterisk as the marker to separate the user names
                             msgToSend.strMessage += client.strName + "*";
+                            message = msgToSend.ToByte();
+
+                            //Send the name of the users in the chat room
+                            clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None,
+                                    new AsyncCallback(OnSend), clientSocket);
+                            Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                                Console.WriteLine("LIST: " + msgToSend.strMessage);
+                                Console.WriteLine("Clients " + client.socket);
+                                //mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
+                            }));
                         }
-
-                        message = msgToSend.ToByte();
-
-                        //Send the name of the users in the chat room
-                        clientSocket.BeginSend(message, 0, message.Length, SocketFlags.None,
-                                new AsyncCallback(OnSend), clientSocket);
-                        Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                            Console.WriteLine("LIST: "+msgToSend.strMessage);
-                            //mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
-                        }));
                         break;
 
                     case Command.File:
@@ -218,22 +236,37 @@ namespace Telecomms.src.models
                             mainWindowInstance.onDownloadFile(filename,msgReceived.strMessage);
                         }));
                         break;
+
+                    case Command.Broadcast:
+                        Console.WriteLine("Broadcast " + msgReceived.strName + " : " + msgReceived.strMessage);
+                        ClientServerInfo ci = new ClientServerInfo();
+                        ci.serverSocket = int.Parse(msgReceived.strMessage);
+                        ci.username = msgReceived.strName;
+                        clientServerList.Add(ci);
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            string info = "<< " + msgReceived.strName + " joined the server >>";
+                            mainWindowInstance.appendSomeInfo(info);
+                            mainWindowInstance.selectedUser.Messages.Add(info);
+                        }));
+                        break;
                 }
 
                 if (msgToSend.cmdCommand != Command.List)   //List messages are not broadcasted
                 {
                     message = msgToSend.ToByte();
 
-                    foreach (ClientInfo clientInfo in clientList)
+                    foreach (ClientInfo cInfo in clientList)
                     {
-                        if (clientInfo.socket != clientSocket ||
+                        if (cInfo.socket != clientSocket ||
                             msgToSend.cmdCommand != Command.Login)
                         {
                             //Send the message to all users
                             //clientInfo.socket.BeginSend(message, 0, message.Length, SocketFlags.None,
                             //new AsyncCallback(OnSend), clientInfo.socket);
-                            clientInfo.socket.Send(message, 0, message.Length, SocketFlags.None);
-                            //Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            //cInfo.socket.Send(message, 0, message.Length, SocketFlags.None);
+                            //Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                            //{
                             //    mainWindowInstance.wrapMessage(msgReceived.strName, msgReceived.strMessage);
                             //    mainWindowInstance.selectedUser.Messages.Add(msgReceived.strName + ": " + msgReceived.strMessage);
                             //}));
@@ -253,7 +286,9 @@ namespace Telecomms.src.models
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSserverTCP");
+                MessageBox.Show(ex.StackTrace);
+                throw;
+                MessageBox.Show(ex.Message, "Receiving: Server");
             }
         }
 
@@ -266,13 +301,9 @@ namespace Telecomms.src.models
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSserverTCP");
+                MessageBox.Show(ex.Message, "Sending: Server");
             }
         }
-
-    }
-
-    public class ArrayList<T> : ArrayList { 
 
     }
 }
