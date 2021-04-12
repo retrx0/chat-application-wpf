@@ -162,42 +162,42 @@ namespace Telecomms.src.models
             }
         }
 
-        //public void ConnectWithNoCommand()
-        //{
-        //    try
-        //    {
-        //        string myIpAddress = GetLocalIPAddress();
-        //        IPAddress ipAddress = IPAddress.Parse(myIpAddress);
-        //        ipEndPoint = new IPEndPoint(ipAddress, portNumber);
-        //        clientSocket.BeginConnect(ipAddress, portNumber, new AsyncCallback(NoCommandConnect), null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message, "Connect to group");
-        //    }
-        //}
-        //private void NoCommandConnect(IAsyncResult ar)
-        //{
-        //    try
-        //    {
-        //        clientSocket.EndConnect(ar);
+        public void ConnectWithNoCommand()
+        {
+            try
+            {
+                string myIpAddress = GetLocalIPAddress();
+                IPAddress ipAddress = IPAddress.Parse(myIpAddress);
+                ipEndPoint = new IPEndPoint(ipAddress, portNumber);
+                clientSocket.BeginConnect(ipAddress, portNumber, new AsyncCallback(NoCommandConnect), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Connect to group");
+            }
+        }
+        private void NoCommandConnect(IAsyncResult ar)
+        {
+            try
+            {
+                clientSocket.EndConnect(ar);
 
-        //        //We are connected so we login into the server
-        //        Data msgToSend = new Data();
-        //        msgToSend.cmdCommand = Command.Null;
+                //We are connected so we login into the server
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.Null;
 
-        //        msgToSend.strName = username;
-        //        msgToSend.strMessage = "" + mainWindowInstance._randPort;
-        //        byte[] b = msgToSend.ToByte();
+                msgToSend.strName = username;
+                msgToSend.strMessage = "";
+                byte[] b = msgToSend.ToByte();
 
-        //        //Send the message to the server
-        //        clientSocket.BeginSend(b, 0, b.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message, "Connecting with no command");
-        //    }
-        //}
+                //Send the message to the server
+                clientSocket.BeginSend(b, 0, b.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Connecting with no command");
+            }
+        }
 
         private void OnSend(IAsyncResult ar)
         {

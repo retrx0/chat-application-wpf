@@ -13,7 +13,7 @@ namespace Telecomms.src.models
     public class ClientMessage
     {
         public static Socket ClientSocket;
-        public static string Username;
+        public string Username { get; set; }
         MainWindow mainWindow;
         byte[] byteData = new byte[8192];
 
@@ -24,10 +24,12 @@ namespace Telecomms.src.models
             this.mainWindow.wrapMessage(Username, pMessage);
         }
 
-        public ClientMessage(Socket pSocket, string pName, MainWindow mainw)
+        public ClientMessage(MainWindow main) { this.mainWindow = main; }
+
+        public ClientMessage(Socket pSocket, string usernmae, MainWindow mainw)
         {
             ClientSocket = pSocket;
-            Username = pName;
+            Username = usernmae;
             this.mainWindow = mainw;
             ClientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), ClientSocket);
         }
@@ -64,7 +66,8 @@ namespace Telecomms.src.models
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "Problem Sending Message");
+                Console.WriteLine(e.Message + " Problem sending message");
+                //MessageBox.Show(e.Message, "Problem Sending Message");
             }
         }
 
@@ -86,21 +89,24 @@ namespace Telecomms.src.models
             }
         }
 
-        public static void broadCastMessage(string message, Server server)
+        public void broadCastMessage(string message, Server server)
         {
             Data broadCastMsg = new Data();
-            broadCastMsg.cmdCommand = Command.Broadcast;
+            broadCastMsg.cmdCommand = Command.Message;
             broadCastMsg.strMessage = message;
             broadCastMsg.strName = Username;
             byte[] b = broadCastMsg.ToByte();
+            //mainWindow.mServer.broadcastClient.clientSocket.Send(b, 0, b.Length, SocketFlags.None);
 
             foreach (Server.ClientServerInfo csi in server.clientServerList)
             {
-                //Client cl = new Client(csi.serverSocket);
-                //cl.OnLoginPressed();
-                //cl.clientSocket.Send(b);
-                Console.WriteLine(csi.username);
-                //server.serverSocket.Send(b);
+                Client _cl1 = new Client(csi.serverSocket);
+                _cl1.OnLoginPressed();
+                ClientMessage _cm1 = new ClientMessage(_cl1.clientSocket, Username, null);
+                _cm1.sendMessage(message);
+                _cl1.clientSocket.Send(b, 0, b.Length, SocketFlags.None);
+                Console.WriteLine(message);
+                Console.WriteLine("Broadcast Message in CM " + csi.username + " : " + csi.serverSocket);
             }
 
         }

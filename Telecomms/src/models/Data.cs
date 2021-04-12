@@ -16,6 +16,7 @@ namespace Telecomms.src.models
         Accept,
         Decline,
         Broadcast,
+        BroadcastMessage,
         File,
         Null        //No command
     }

@@ -34,6 +34,8 @@ namespace Telecomms.src.models
 
         public Socket serverSocket { get; set; }
 
+        public Client broadcastClient { get; set; }
+
         byte[] byteData = new byte[20 * 1024];
 
         public Server(MainWindow mainw, int port)
@@ -42,6 +44,8 @@ namespace Telecomms.src.models
             clientServerList = new ArrayList();
             this.mainWindowInstance = mainw;
             portNumber = port;
+            broadcastClient = new Client(port);
+            broadcastClient.ConnectWithNoCommand();
         }
 
         private delegate void UpdateDelegate(string pMessage);
@@ -99,6 +103,7 @@ namespace Telecomms.src.models
         }
 
         bool flag1 = true;
+        int flag2 = 0;
 
         private void OnReceive(IAsyncResult ar)
         {
@@ -126,9 +131,13 @@ namespace Telecomms.src.models
                     if (msgReceived.strMessage != null)
                     {
                         Console.WriteLine("--->>>"+msgReceived.strMessage);
-                        cl = new Client(int.Parse(msgReceived.strMessage), msgReceived.strName);
-                        cl.clientType = Client.ClientType.NEW_USER;
-                        cl.OnLoginPressed();
+                        int r = 9000;
+                        if (int.TryParse(msgReceived.strMessage,out r))
+                        {
+                            cl = new Client(int.Parse(msgReceived.strMessage), msgReceived.strName);
+                            cl.clientType = Client.ClientType.NEW_USER;
+                            cl.OnLoginPressed();
+                        }
                     }
                 }
 
@@ -164,7 +173,8 @@ namespace Telecomms.src.models
                                         }
                                     }
                                 }));
-                                flag1 = false;
+                            flag1 = false;
+                            flag2++;
                         }
                         break;
                     case Command.Logout:
@@ -249,6 +259,29 @@ namespace Telecomms.src.models
                             mainWindowInstance.appendSomeInfo(info);
                             mainWindowInstance.selectedUser.Messages.Add(info);
                         }));
+                        break;
+
+                    case Command.BroadcastMessage:
+                        message = msgToSend.ToByte();
+                        foreach (ClientServerInfo ci2 in clientServerList)
+                        {
+                            Data broadCastMsg = new Data();
+                            broadCastMsg.cmdCommand = Command.Message;
+                            broadCastMsg.strMessage = msgToSend.strMessage;
+                            broadCastMsg.strName = msgToSend.strName;
+                            byte[] b = broadCastMsg.ToByte();
+
+                            //Client _cl1 = new Client(ci2.serverSocket);
+                            //_cl1.OnLoginPressed();
+                            //ClientMessage _cm1 = new ClientMessage(_cl1.clientSocket, msgToSend.strName, null);
+                            //_cm1.sendMessage(msgToSend.strMessage);
+                            //_cl1.clientSocket.Send(b,0,b.Length, SocketFlags.None);
+                            //Console.WriteLine(msgToSend.strMessage);
+                            //Console.WriteLine("Broadcast Message in Server " + ci2.username + " : " + ci2.serverSocket);
+                            //Send the message to all users
+                            //ci2.socket.BeginSend(b, 0, b.Length, SocketFlags.None, new AsyncCallback(OnSend), ci2.socket);
+                            //ci2.socket.Send(message, 0, message.Length, SocketFlags.None);
+                        }
                         break;
                 }
 

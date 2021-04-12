@@ -39,7 +39,7 @@ namespace Telecomms
         ClientMessage mClientMessage;
 
         Server groupServer;
-        Server mServer;
+        public Server mServer;
         Server testServer;
 
         public int _randPort { get; } = 0;
@@ -154,7 +154,7 @@ namespace Telecomms
             message.FontSize = 20;
             message.TextWrapping = TextWrapping.Wrap;
 
-            message.Text = user +": "+ msg + Environment.NewLine;
+            message.Text = user +"  "+ msg + Environment.NewLine;
 
             Border messageBorder = new Border();
             messageBorder.Child = message;
@@ -191,10 +191,14 @@ namespace Telecomms
 
                     //ClientMessage cm = new ClientMessage(testClient.clientSocket, username, this);
                     //cm.sendMessage(messageTextInput.Text);
+                    ClientMessage cm3 = new ClientMessage(this);
+                    cm3.Username = username;
+                    cm3.broadCastMessage(messageTextInput.Text, groupServer);
                     wrapMessage(username, messageTextInput.Text);
-                    ClientMessage.broadCastMessage(messageTextInput.Text, groupServer);
+                    selectedUser.Messages.Add(username + ": " + messageTextInput.Text);
                     break;
             }
+            messageTextInput.Text = "";
         }
 
         public void showAndSetupDialog(UserRequestType urt, int port, string title, string messageBoxTitle)
