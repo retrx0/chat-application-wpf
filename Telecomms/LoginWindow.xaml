@@ -87,6 +87,16 @@
                     Content="Login"
                     >
             </Button>
+            <Button x:Name="create_btn"
+                    Width="200" 
+                    Height="40" 
+                    Background="Transparent"
+                    Foreground="#1F76F9"
+                    FontSize="20"
+                    BorderBrush="#00000000" 
+                    Content="Create new Account" Click="CreateOnClick"
+                    >
+            </Button>
 
         </StackPanel>
     </Grid>

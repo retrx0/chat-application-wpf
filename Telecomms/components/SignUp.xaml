@@ -1,0 +1,121 @@
+﻿<Window x:Class="Telecomms.components.SignUp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Telecomms.components"
+        mc:Ignorable="d"
+        Title="SignUp" Height="450" Width="600" Topmost="True"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        >
+    <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70" />
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="150"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Sign Up" 
+                   x:Name="Title"
+                   FontSize="35"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" 
+                       Text="Username" 
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       FontSize="20"
+                       />
+            <Border Grid.Column="1"
+                Background="#FFF"
+                CornerRadius="8"
+                Height="50"
+                Margin="0 0 15 0"
+                >
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="4"
+                                  ShadowDepth="2"
+                                  Direction="270"
+                                  Opacity="0.2"
+                                  />
+                </Border.Effect>
+                <TextBox x:Name="username_input"
+                     Height="40"
+                     Margin="3"
+                     BorderThickness="0"
+                     Padding="5"
+                     FontSize="20"
+                     VerticalAlignment="Center"
+                     />
+
+            </Border>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" 
+                       Text="Password" 
+                       FontSize="20"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       />
+            <Border Grid.Column="1"
+                Background="#FFF"
+                CornerRadius="8"
+                Height="50"
+                Margin=" 0 0 15 0"
+                >
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="4"
+                                  ShadowDepth="2"
+                                  Direction="270"
+                                  Opacity="0.2"
+                                  />
+                </Border.Effect>
+                <TextBox x:Name="password_input"
+                     Height="40"
+                     BorderThickness="0"
+                     Padding="5"
+                     Margin="3"
+                     FontSize="20"
+                     VerticalAlignment="Center"
+                     />
+
+            </Border>
+        </Grid>
+        <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="Cancel"
+                    Grid.Column="0"
+                    Style="{StaticResource CustomButton}"
+                    Content="Cancel"
+                    Foreground="White"
+                    Height="50"
+                    Width="100"
+                    HorizontalAlignment="Center" Click="CancelOnClick"
+                    
+                    />
+                <Button x:Name="Signup"
+                    Grid.Column="1"
+                    Style="{StaticResource CustomButton}"
+                    Content="Create"
+                    Foreground="White"
+                    Height="50"
+                    Width="100"
+                    HorizontalAlignment="Center" Click="SignUpOnClick"
+                        
+                    />
+            </Grid>
+        </Grid>
+</Window>

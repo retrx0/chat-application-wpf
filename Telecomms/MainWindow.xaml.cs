@@ -349,11 +349,22 @@ namespace Telecomms
                 FileInfo fi = new FileInfo(fileDialog.FileName);
                 if (selectedUser != null)
                 {
-                   byte[] fileBytes = File.ReadAllBytes(fi.FullName);
-                    ClientMessage cm = new ClientMessage(selectedUser.client.clientSocket,username, this);
-                    string content = File.ReadAllText(fi.FullName);
-                    cm.sendFile(fileDialog.FileName, content, fileBytes);
-                    wrapMessage(username, "File "+fi.Name);
+                    if(selectedUser.buttonType == CustomButton.ButtonType.CREATED_GROUP)
+                    {
+                        byte[] fileBytes = File.ReadAllBytes(fi.FullName);
+                        ClientMessage cm = new ClientMessage(selectedUser.server.broadcastClient.clientSocket, username, this);
+                        string content = File.ReadAllText(fi.FullName);
+                        cm.broadcastFile(fileDialog.FileName, content, selectedUser.server);
+                        wrapMessage(username, "File " + fi.Name);
+                    }
+                    else
+                    {
+                        byte[] fileBytes = File.ReadAllBytes(fi.FullName);
+                        ClientMessage cm = new ClientMessage(selectedUser.client.clientSocket, username, this);
+                        string content = File.ReadAllText(fi.FullName);
+                        cm.sendFile(fileDialog.FileName, content, fileBytes);
+                        wrapMessage(username, "File " + fi.Name);
+                    }
                 }
             }
         }

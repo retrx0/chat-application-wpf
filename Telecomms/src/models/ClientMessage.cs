@@ -85,7 +85,37 @@ namespace Telecomms.src.models
             }
             catch (Exception r)
             {
-                MessageBox.Show(r.Message, "Problem sending file");
+                Console.WriteLine(r.Message + " Problem sending file");
+                //MessageBox.Show(r.Message, "Problem sending file");
+            }
+        }
+        
+        public void broadcastFile(string filename,string content,Server server)
+        {
+            try
+            {
+                Data filrToSend = new Data();
+                filrToSend.cmdCommand = Command.File;
+                filrToSend.strMessage = content;
+                filrToSend.strName = filename;
+                byte[] fileBytes = File.ReadAllBytes(filename);
+                byte[] be = filrToSend.ToByte();
+                ClientSocket.Send(be);
+
+                foreach (Server.ClientServerInfo csi in server.clientServerList)
+                {
+                    Client _cl1 = new Client(csi.serverSocket);
+                    _cl1.OnLoginPressed();
+                    ClientMessage _cm1 = new ClientMessage(_cl1.clientSocket, Username, null);
+                    _cm1.sendFile(filename, content, be);
+                    _cl1.clientSocket.Send(be, 0, be.Length, SocketFlags.None);
+                    Console.WriteLine("Broadcast File in CM " + csi.username + " : " + csi.serverSocket);
+                }
+            }
+            catch (Exception r)
+            {
+                Console.WriteLine(r.Message + " Problem bradcasting file");
+                //MessageBox.Show(r.Message, "Problem sending file");
             }
         }
 
